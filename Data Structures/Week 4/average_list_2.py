@@ -10,6 +10,8 @@ num_list_count = 0
 for numbers in num_list:
     num_list_sum = num_list_sum + numbers
 
+#Calculate the count of the numbers in the list
+
 num_list_count = len(num_list)
 
 print("The average is: ", num_list_sum / num_list_count)
