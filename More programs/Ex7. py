@@ -1,0 +1,15 @@
+hrs = input("Enter number of hours:")
+
+try:
+    hrs_int = float(hrs)
+    rate = input("Enter rate: ")
+    rate_float = float(rate)
+    base_pay = hrs_int * rate_float
+    
+    if hrs_int > 40:
+        overtime_pay = (hrs_int - 40) * 1.5
+    
+    print("Your pay is: ", overtime_pay +     base_pay)
+
+except:
+    print("Enter a valid number")

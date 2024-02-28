@@ -1,0 +1,46 @@
+# Running speed calculator
+
+# Declare variables
+speed = 0
+distance = 0
+time = 0
+
+# Loop variable
+continue_calculating = True
+
+# Start the program using loop
+while continue_calculating:
+    # Get distance
+    distance_input = input("Enter your distance in KM: \n")
+    try:
+        distance_float = float(distance_input)
+        distance = distance_float  # Assuming you want to reset every time
+        print("You entered ", distance, "KM")
+    except ValueError:
+        print("Invalid input for KM")
+        continue  # Skips the rest of this loop iteration and starts at the top
+
+    # Get time
+    time_input = input("Enter your time in minutes: \n")
+    try:
+        time_float = float(time_input)
+        time = time_float / 60  # Convert time to hours
+        print("You entered ", time_float, "minutes which is", time, "hours")
+    except ValueError:
+        print("Invalid input for time")
+        continue
+
+    # Calculate and display pace if distance is not zero
+    if distance != 0:
+        pace = time / distance  # Pace in hours per KM
+        pace_minutes = int(pace * 60)  # Convert hours per KM to minutes per KM
+        pace_seconds = int((pace * 3600) % 60)  # Convert remainder to seconds per KM
+        print(f"Your pace is: {pace_minutes} minutes {pace_seconds} seconds per KM")
+    else:
+        print("Distance cannot be zero")
+        continue  # Correctly aligned inside the while loop
+
+    # Ask for another calculation
+    another_calculation = input("Do you want to perform another calculation? (yes/no): ")
+    if another_calculation.lower() != 'yes':
+        continue_calculating = False

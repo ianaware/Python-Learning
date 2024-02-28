@@ -1,0 +1,17 @@
+score = input ("Enter your score: ")
+
+try:
+    score_float = float(score)
+    if score_float >=0.9:
+        print("Your score is A")
+    elif score_float >= 0.8:
+        print("Your score is B")
+    elif score_float >= 0.7:
+        print("Your score is C")
+    elif score_float >= 0.6:
+        print("Your score is D")
+    elif score_float < 0.6:
+        print("Your score is F")
+
+except:
+    print("Bad score")
