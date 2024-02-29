@@ -3,14 +3,6 @@
 		{
 			"name": "Python-Learning",
 			"path": "."
-		},
-		{
-			"name": "Week 4",
-			"path": "../../../Coursera/Python for Everybody/Data Structures/Week 4"
-		},
-		{
-			"name": "Chapter 6",
-			"path": "../../../Coursera/Python for Everybody/Data Structures/Chapter 6"
 		}
 	],
 	"settings": {}
