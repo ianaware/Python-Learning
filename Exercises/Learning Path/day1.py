@@ -14,4 +14,4 @@ number_int = 3
 number_float = 3.14
 string = "A string"
 
-print(number_int, number_float, string)
+print(type(number_int), type(number_float), type(string)) #output and get type
