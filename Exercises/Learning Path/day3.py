@@ -8,8 +8,8 @@ Extend the program to identify whether the number is even or odd.
 
 '''
 
-print("Enter a number: ")
-user_input = input()
+
+user_input = input("Enter a number:")
 number_int = int(user_input)
 if number_int >= 0:
     print("The number is positive")
