@@ -1,0 +1,15 @@
+{
+    "books.toscrape.com": {
+      "title_class": "product_main",
+      "price_class": "price_color",
+      "availability_class": "instock availability",
+      "description_selector": "#product_description + p",
+      "upc_class": "table table-striped",
+      "product_type_class": "table table-striped",
+      "price_excl_tax_class": "table table-striped",
+      "price_incl_tax_class": "table table-striped",
+      "tax_class": "table table-striped",
+      "number_of_reviews_class": "table table-striped"
+    }
+  }
+  

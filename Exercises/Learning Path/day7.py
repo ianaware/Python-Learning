@@ -14,5 +14,5 @@ my_list = [1, 20, 446, 23] #create a list of numbers
 
 my_tuple = tuple(my_list) #use tuple() to convert
 
-print(f'This tuple contains a list {my_tuple}')
+print(f'This tuple contains a tuple of numbers that was based on a list {my_tuple}')
 
