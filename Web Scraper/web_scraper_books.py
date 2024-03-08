@@ -4,6 +4,7 @@ import csv
 import json
 import os
 import re
+import urllib.request  # Added for image downloading
 
 # Function to check if the CSV file is open elsewhere
 def is_csv_file_open(file_path):
@@ -49,7 +50,8 @@ def main():
         if urls:
             with open(csv_file_path, 'w', newline='', encoding='utf-8-sig') as file:
                 writer = csv.writer(file)
-                writer.writerow(['Title', 'Price (excl. tax)', 'Price (incl. tax)', 'Availability', 'Description', 'UPC', 'Product Type', 'Tax', 'Number of Reviews'])
+                # Updated to include 'Image Path' in the CSV header
+                writer.writerow(['Title', 'Price (excl. tax)', 'Price (incl. tax)', 'Availability', 'Description', 'UPC', 'Product Type', 'Tax', 'Number of Reviews', 'Image Path'])
 
                 for url in urls:  # Process each provided URL
                     if url_pattern.match(url):
@@ -73,7 +75,19 @@ def main():
                             tax = product_info.get('Tax', 'N/A')
                             number_of_reviews = product_info.get('Number of reviews', 'N/A')
 
-                            writer.writerow([title, price_excl_tax, price_incl_tax, availability, description, upc, product_type, tax, number_of_reviews])
+                            # New section: image downloading
+                            image_container = soup.select_one(config["books.toscrape.com"]["image_selector"])
+                            image_path = 'N/A'  # Default if no image found
+                            if image_container:
+                                image_relative_url = image_container.get('src')
+                                image_absolute_url = urllib.parse.urljoin(url, image_relative_url)
+                                image_filename = f"{title.replace('/', '|')}.jpg"  # Replace slashes with vertical bars
+                                image_path = os.path.join(script_dir, 'images', image_filename)
+                                os.makedirs(os.path.join(script_dir, 'images'), exist_ok=True)  # Ensure the 'images' directory exists
+                                urllib.request.urlretrieve(image_absolute_url, image_path)
+
+                            # Write all extracted details to the CSV
+                            writer.writerow([title, price_excl_tax, price_incl_tax, availability, description, upc, product_type, tax, number_of_reviews, image_path])
                             print(f"Completed scraping data for: {url}")
                         else:
                             print(f"Failed to fetch {url} with status code {response.status_code}")

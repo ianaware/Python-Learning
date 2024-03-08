@@ -9,6 +9,7 @@
         "price_excl_tax_class": "table-striped",
         "price_incl_tax_class": "table-striped",
         "tax_class": "table-striped",
-        "number_of_reviews_class": "table-striped"
+        "number_of_reviews_class": "table-striped",
+        "image_selector": ".item.active img"
     }
 }
