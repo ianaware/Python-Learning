@@ -7,7 +7,7 @@ Day 6: Dictionaries
 
 '''
 
-book = {"Author":"George Orwell", "Title": "Ninteen Eighty Four", "Year_Published": "1946"} #create dictionary
+book = {"Author":"George Orwell", "Title": "Nineteen Eighty Four", "Year_Published": "1946"} #create dictionary
 
-for key, value in book.items():
-    print(f'{key}:{value}')
+for key, value in book.items(): #add variables for key and value and use .items() on the dictionary
+    print(f'{key}:{value}') #output the key and its value
