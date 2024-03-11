@@ -1,0 +1,6 @@
+print("The itsy bitsy spider\nclimbed up the waterspout.")
+print()
+print("Down came the rain\nand washed the spider out.")
+print("Itsy bitsy spiner\nclimbed up again")
+print("Very determined\nto see its friend")
+print("\\")
