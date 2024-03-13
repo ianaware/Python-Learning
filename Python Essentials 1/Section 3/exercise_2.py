@@ -19,3 +19,5 @@ Don't create any if blocks (we're going to talk about them very soon). Test your
 n_value = input("Enter a value: ") #ask for input
 n_int = int(n_value) #convert str to int
 print(n_int >=100) #print result of calculation as True or False
+
+price = 
