@@ -17,9 +17,9 @@ next_layer = 1
 # Write your code here.
 #	
 
-while blocks >= next_layer:
-    height += 1    
-    blocks -= next_layer
-    next_layer += 1
+while blocks >= next_layer: 
+    height += 1    # Increase the pyramid's height because you can add another layer.
+    blocks -= next_layer  # Use up the blocks needed for the current layer.
+    next_layer += 1 # Increase the number of blocks needed for the next layer.
 
 print("The height of the pyramid:", height)
