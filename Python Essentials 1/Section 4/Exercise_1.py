@@ -1,9 +1,13 @@
 def message():
     print("Enter a value: ")
 
+def message():
+    print("Enter a value: ")
+
 message()
-a = int(input())
+a = 1
 message()
-b = int(input())
+
+b = 2
 message()
-c = int(input())
+c = 3
