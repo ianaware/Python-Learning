@@ -1,58 +1,96 @@
-import pandas as pd
 from ortools.sat.python import cp_model
+import pandas as pd
+import calendar
 
-def create_shift_schedule():
-    # Define the data for scheduling
-    employees = ['Tanggwa', 'Benz', 'Yim']
-    months = ['April', 'May', 'June']
-    month_days = {'April': 30, 'May': 31, 'June': 30}  # Days in each month
+# Define constants
+EMPLOYEES = ['Tanggwa', 'Yim', 'Benz']
+MONTHS = ['April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+DAYS_IN_MONTH = [30, 31, 30, 31, 31, 30, 31, 30, 31]  # April to December 2024
+SHIFT_CONFIGS = [
+    {'Tanggwa': 'NI1', 'Yim': 'NI2', 'Benz': 'NI3'},  # April
+    {'Tanggwa': ['NI2', 'NI3'], 'Yim': ['NI1', 'NI3'], 'Benz': ['NI1', 'NI2']},  # May
+    {'Tanggwa': ['NI3', 'NI2'], 'Yim': ['NI3', 'NI1'], 'Benz': ['NI2', 'NI1']},  # June
+    {'Tanggwa': ['NI2', 'NI3'], 'Yim': ['NI1', 'NI3'], 'Benz': ['NI1', 'NI2']},  # July
+    {'Tanggwa': ['NI3', 'NI2'], 'Yim': ['NI3', 'NI1'], 'Benz': ['NI2', 'NI1']},  # August
+    {'Tanggwa': ['NI2', 'NI3'], 'Yim': ['NI1', 'NI3'], 'Benz': ['NI1', 'NI2']},  # September
+    {'Tanggwa': ['NI3', 'NI2'], 'Yim': ['NI3', 'NI1'], 'Benz': ['NI2', 'NI1']},  # October
+    {'Tanggwa': ['NI2', 'NI3'], 'Yim': ['NI1', 'NI3'], 'Benz': ['NI1', 'NI2']},  # November
+    {'Tanggwa': ['NI3', 'NI2'], 'Yim': ['NI3', 'NI1'], 'Benz': ['NI2', 'NI1']}   # December
+]
+PUBLIC_HOLIDAYS = {
+    'April': [6, 8, 12, 13, 14, 15, 16],
+    'May': [1, 4, 6, 22],
+    'June': [3],
+    'July': [20, 22, 28, 29],
+    'August': [12],
+    'October': [13, 14, 23],
+    'December': [5, 10, 31]
+    # November has no public holidays
+}
+SHIFT_DAYS = {
+    'NI1': [0, 1, 2, 3],  # Monday to Thursday
+    'NI2': [4, 5, 6, 0],  # Friday to Monday
+    'NI3': [1, 2, 3, 4]   # Tuesday to Friday
+}
+
+# Schedule generation function
+def generate_schedule(month_index, shift_patterns, apply_holidays=False, public_holidays=[]):
+    model = cp_model.CpModel()
+    work_vars = {}
+
+    # Variables
+    for name in EMPLOYEES:
+        for day in range(1, DAYS_IN_MONTH[month_index] + 1):
+            work_vars[(name, day)] = model.NewBoolVar(f'{name}_{day}')
+
+    # Regular shift constraints
+    for day in range(1, DAYS_IN_MONTH[month_index] + 1):
+        weekday = (calendar.monthrange(2024, month_index + 4)[1] + day - 1) % 7
+        for name in EMPLOYEES:
+            shifts = shift_patterns[name] if isinstance(shift_patterns[name], list) else [shift_patterns[name]]
+            model.AddBoolOr([work_vars[(name, day)] for shift in shifts if weekday in SHIFT_DAYS[shift]]).OnlyEnforceIf(work_vars[(name, day)])
+            model.AddBoolOr([work_vars[(name, day)].Not() for shift in shifts if weekday not in SHIFT_DAYS[shift]]).OnlyEnforceIf(work_vars[(name, day)].Not())
+
+    # Solve the model without public holidays first
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+    if status == cp_model.FEASIBLE or status == cp_model.OPTIMAL:
+        print(f"Standard schedule generated for {MONTHS[month_index]} 2024.")
+    else:
+        print(f"No standard solution found for {MONTHS[month_index]} 2024.")
+        return {}
+
+    # If the user wants to apply holidays, modify the model for public holidays
+    solution = {}
+    if apply_holidays:
+        for day in public_holidays:
+            model.Add(sum(work_vars[(name, day)] for name in EMPLOYEES) == 1)
+        status = solver.Solve(model)
+        if status != cp_model.FEASIBLE and status != cp_model.OPTIMAL:
+            print(f"No solution with holidays found for {MONTHS[month_index]} 2024.")
+            return {}
+
+    # Collect solutions
+    for name in EMPLOYEES:
+        solution[name] = [solver.Value(work_vars[(name, day)]) for day in range(1, DAYS_IN_MONTH[month_index] + 1)]
     
-    # Corrected rotation for the shift patterns for each month
-    shift_off_days = {
-        'April': {'Tanggwa': ['Friday', 'Saturday', 'Sunday'], 'Benz': ['Saturday', 'Sunday', 'Monday'], 'Yim': ['Tuesday', 'Wednesday', 'Thursday']},
-        'May': {'Benz': ['Friday', 'Saturday', 'Sunday'], 'Tanggwa': ['Tuesday', 'Wednesday', 'Thursday'], 'Yim': ['Saturday', 'Sunday', 'Monday']},
-        'June': {'Tanggwa': ['Saturday', 'Sunday', 'Monday'], 'Benz': ['Tuesday', 'Wednesday', 'Thursday'], 'Yim': ['Friday', 'Saturday', 'Sunday']}
-    }
-    day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    return solution
 
-    # Base directory
-    base_directory = r'C:\Users\ian.w\OneDrive - AWARE CORPORATION LIMITED\GitHub\Python\Python-Learning\Scheduler\\'
+# Main script execution
+all_schedules = {}
+output_directory = r'C:\Users\ian.w\OneDrive - AWARE CORPORATION LIMITED\GitHub\Python\Python-Learning\Scheduler\\'
+for index, month in enumerate(MONTHS):
+    print(f"Generating schedule for {month} 2024...")
+    shifts = SHIFT_CONFIGS[index]  # Get shift configurations for the month
+    apply_holidays = input(f"Do you want to apply public holidays to the {month} 2024 schedule? (yes/no): ").lower() == 'yes'
+    public_days = PUBLIC_HOLIDAYS.get(month, [])
+    schedule = generate_schedule(index, shifts, apply_holidays, public_days)
+    all_schedules[month] = schedule
+    # Output to CSV
+    if schedule:
+        df = pd.DataFrame(schedule, index=range(1, DAYS_IN_MONTH[index] + 1))
+        df.to_csv(f'{output_directory}schedule_{month}_2024.csv', index_label='Day')
+        print(f"Schedule for {month} 2024 saved to {output_directory}.")
 
-    for month in months:
-        # Initialize model inside loop to reset constraints for each month
-        model = cp_model.CpModel()
-
-        # List to collect all schedule data
-        schedules_data = []  
-
-        # Create schedules data
-        for day in range(1, month_days[month] + 1):
-            day_name = day_names[(day - 1) % 7]
-            day_schedule = {'Day': f'{day_name} {day}'}
-            for employee in employees:
-                # Create the variable for each employee's schedule
-                var = model.NewBoolVar(f'{employee}_{month}_{day}')
-                # Check if the employee is supposed to work this day
-                model.Add(var == 1).OnlyEnforceIf(model.NewBoolVar(f'working_{employee}_{month}_{day}'))
-                model.Add(var == 0).OnlyEnforceIf(model.NewBoolVar(f'off_{employee}_{month}_{day}'))
-                day_schedule[employee] = 'Work' if day_name not in shift_off_days[month][employee] else 'Off'
-            schedules_data.append(day_schedule)
-        
-        # Convert schedules data to DataFrame
-        df = pd.DataFrame(schedules_data)
-
-        # Create a DataFrame for the shift pattern
-        shift_pattern_df = pd.DataFrame({
-            'Employee': list(shift_off_days[month].keys()),
-            'Shift Pattern': [', '.join(days) + ' off' for days in shift_off_days[month].values()]
-        })
-
-        # Save the DataFrame to an Excel file for the current month
-        output_filepath = base_directory + f'{month}_schedule.xlsx'
-        with pd.ExcelWriter(output_filepath, engine='openpyxl') as writer:
-            shift_pattern_df.to_excel(writer, sheet_name='Shift Patterns', index=False)
-            df.to_excel(writer, sheet_name='Schedule', index=False)
-        print(f'Schedule for {month} saved to {output_filepath}')
-
-if __name__ == '__main__':
-    create_shift_schedule()
+# Print completion message
+print("All schedules generated and saved.")
