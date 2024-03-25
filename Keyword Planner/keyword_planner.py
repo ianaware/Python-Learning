@@ -1,6 +1,6 @@
 import csv
-from google.ads.google_ads.client import GoogleAdsClient
-from google.ads.google_ads.errors import GoogleAdsException
+from google.ads.googleads.client import GoogleAdsClient
+from google.ads.googleads.errors import GoogleAdsException
 
 def get_keyword_ideas(client, customer_id, keyword_text):
     # Get the service for keyword planning
@@ -44,7 +44,7 @@ def save_keywords_to_csv(keywords, filename="keywords.csv"):
 
 def main():
     # Initialize the Google Ads client
-    google_ads_client = GoogleAdsClient.load_from_storage()
+    google_ads_client = GoogleAdsClient.load_from_storage('C:\\Users\\ian.w\\OneDrive - AWARE CORPORATION LIMITED\\GitHub\\Python\\Python-Learning\\Keyword Planner\\google-ads.yaml')
     customer_id = 'your-customer-id'  # Replace with your Google Ads customer ID
     
     # Ask for user input
